@@ -21,7 +21,7 @@ class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_ECHO = False
 
-class DevConfig(Config):
+class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_PROD_DATABASE_URI")
     DEBUG = False
     SQLALCHEMY_ECHO = False

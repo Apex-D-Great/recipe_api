@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_restx import Api, Resource
 from backend.models import db, Recipe
-from .config import DevConfig,TestConfig
+from .config import DevConfig,TestConfig,ProdConfig
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from .routes.Recipe import recipe_ns
@@ -14,15 +14,26 @@ load_dotenv()
 
 
 app = Flask(__name__)
-app.config.from_object(DevConfig)
+app.config.from_object(ProdConfig)
 api = Api(app, doc="/docs")
 
 app.secret_key = os.getenv("APP_SECRET_KEY")
 app.config['SERVER_NAME'] = 'localhost:5000'
 
 JWTManager(app)
+
+# db_init
 db.init_app(app)
+app.app_context().push()
+db.create_all()
+
 migrate = Migrate(app,db)
+# with app.app_context():
+#     if db.engine.url.drivername == "sqlite":
+#         migrate.init_app(app, db, render_as_batch=True)
+#     else:
+#         migrate.init_app(app, db)
+
 oauth = OAuth(app)
 
 from .Auth import auth_ns

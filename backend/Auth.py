@@ -58,9 +58,8 @@ class Login(Resource):
         if user is not None and check_password_hash(user.password,data.get("password")):
             access_token = create_access_token(identity=user.id)
             refresh_token = create_refresh_token(identity=user.id)
-            # return jsonify({"access_token":access_token, "refresh_token":refresh_token})
-            return jsonify({"message": f"welcome {user.username}"})
-        return jsonify({"message":"incorrect credentials or if you dont have an account, sign up"})
+            return jsonify({"access_token":access_token, "refresh_token":refresh_token, "message":f"welcome {user.username}"})
+        return jsonify({"message":"incorrect credentials or you probably dont have an account, sign up"})
     def get(self):
         headers = {'Content-Type': 'text/html'}
         return make_response(render_template("login.html"),200,headers)

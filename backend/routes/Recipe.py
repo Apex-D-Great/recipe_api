@@ -3,7 +3,16 @@ from ..models import Recipe
 from flask_jwt_extended import jwt_required
 from flask import request
 
-recipe_ns = Namespace("recipe", description="a namespace for recipe")
+authorizations = {
+    "apikey":{
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+    }
+}
+recipe_ns = Namespace("recipe", 
+                      description="a simple recipe blog endpoint which contains just title and description",
+                      authorizations=authorizations)
 
 recipes_model = recipe_ns.model(
     "Recipe",
@@ -26,14 +35,17 @@ recipe_model = recipe_ns.model(
 class RecipeResources(Resource):
     @recipe_ns.marshal_list_with(recipes_model)
     @jwt_required()
+    @recipe_ns.doc(security="apikey")
     def get(self):
         """get all recipes"""
         recipes = Recipe.query.all()
         return recipes
-
+    
+    
     @recipe_ns.marshal_with(recipe_model)
     @recipe_ns.expect(recipe_model)
-    # @jwt_required
+    @jwt_required()
+    @recipe_ns.doc(security="apikey")
     def post(self):
         """this method helps in creating a post"""
         data = request.get_json()

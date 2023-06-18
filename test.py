@@ -1,11 +1,11 @@
 import unittest
 from backend.config import TestConfig
-from backend import create_app
+from backend import app
 from backend.models import db
 
 class APITestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = app
         self.client = self.app.test_client(self)
         with self.app.app_context():
             db.create_all()
@@ -34,10 +34,12 @@ class APITestCase(unittest.TestCase):
         login_resp = self.client.post(
             "/auth/login",
             json={
-                "username":"dayo1",
+                "email":"dayo1@gmail.com",
                 "password":"password"
             }
         )
+        access_token=login_resp.json["message"]
+        print(access_token)
         status_code = login_resp.status_code
         self.assertEqual(status_code, 200)
 
@@ -53,21 +55,23 @@ class APITestCase(unittest.TestCase):
         login_resp = self.client.post(
             "/auth/login",
             json={
-                "username":"dayo1",
+                "email":"dayo1@gmail.com",
                 "password":"password"
             }
         )
+
+        access_token=login_resp.json["access_token"]
+        print(access_token)
 
         recipe_resp = self.client.post(
             "/recipe/recipes",
             json={
                 "title":"dayo1",
                 "description":"dayo1@gmail.com"
-            }
+            },
+            headers={"Authorization": f"Bearer {access_token}"}
         )
-        access_token=login_resp.json["access_token"]
-        print(access_token)
-        print(recipe_resp.json)
+
         recipes_resp = self.client.get(
             "/recipe/recipes",
             headers={"Authorization": f"Bearer {access_token}"}

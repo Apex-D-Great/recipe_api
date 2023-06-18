@@ -14,7 +14,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
-app.config.from_object(ProdConfig)
+app.config.from_object(DevConfig)
 api = Api(app, doc="/docs")
 
 app.secret_key = os.getenv("APP_SECRET_KEY")
@@ -48,8 +48,8 @@ api.add_namespace(auth_ns)
 def make_shell_context():
     return {"db":db, "recipe":Recipe}
 
-@api.route("/hello")
-class HelloResource(Resource):
-    def get(self):
-        return jsonify({"hello":"hy"})
+# @api.route("/hello")
+# class HelloResource(Resource):
+#     def get(self):
+#         return jsonify({"hello":"hy"})
 

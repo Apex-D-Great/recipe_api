@@ -116,12 +116,16 @@ class google_auth(Resource):
     def get(self):
         token = oauth.google.authorize_access_token()
         user = token['userinfo']
+        if user["email"]:
+            user = User.query.filter_by(email=user["email"]).first()
+            access_token = create_access_token(identity=user.id)
+            refresh_token = create_refresh_token(identity=user.id)
+            return "you are in"
         new_user = User(username=user["name"], email=user["email"], password=user["email"])
         new_user.save()
         user = User.query.filter_by(email=user["email"]).first()
         access_token = create_access_token(identity=user.id)
         refresh_token = create_refresh_token(identity=user.id)
-        print(access_token)
         # return jsonify({"access_token":access_token, "refresh_token":refresh_token})
         return "you are in"
         

@@ -38,7 +38,7 @@ class Signup(Resource):
     def post(self):
         """sign up method"""
         data = request.get_json()
-        user = User.query.filter_by(username=data.get("email")).first()
+        user = User.query.filter_by(email=data.get("email")).first()
         if user:
             return jsonify({"message":"email already exist in our database, use a new valid email"})
         password = generate_password_hash(data.get("password"))

@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from ..models import Recipe
 from flask_jwt_extended import jwt_required
-from flask import request
+from flask import request, jsonify
 
 authorizations = {
     "apikey":{
@@ -34,9 +34,13 @@ recipe_model = recipe_ns.model(
 @recipe_ns.route("/recipes")
 class RecipeResources(Resource):
     @recipe_ns.marshal_list_with(recipes_model)
-    @jwt_required()
+    # @jwt_required()
     @recipe_ns.doc(security="apikey")
     def get(self):
+        authorization_header = request.headers.get('Authorization')
+        if not authorization_header:
+            error_message = 'Authorization header is missing.'
+            return jsonify({'error': error_message}), 401
         """get all recipes"""
         recipes = Recipe.query.all()
         return recipes
@@ -44,9 +48,13 @@ class RecipeResources(Resource):
     
     @recipe_ns.marshal_with(recipe_model)
     @recipe_ns.expect(recipe_model)
-    @jwt_required()
+    # @jwt_required()
     @recipe_ns.doc(security="apikey")
     def post(self):
+        authorization_header = request.headers.get('Authorization')
+        if not authorization_header:
+            error_message = 'Authorization header is missing.'
+            return jsonify({'error': error_message}), 401
         """this method helps in creating a post"""
         data = request.get_json()
         new_recipe = Recipe(title=data.get("title"), description=data.get("description"))

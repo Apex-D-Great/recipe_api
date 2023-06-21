@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import jsonify, make_response, render_template, url_for
 from .models import User
-from flask_jwt_extended import jwt_required, create_access_token, create_refresh_token
+from flask_jwt_extended import jwt_required, create_access_token, create_refresh_token, get_jwt_identity
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -70,15 +70,13 @@ class Login(Resource):
 # so you can do whatever you want to do instead
 # of printing it
 
-
-'''
-	Set SERVER_NAME to localhost as twitter callback
-	url does not accept 127.0.0.1
-	Tip : set callback origin(site) for facebook and twitter
-	as http://domain.com (or use your domain name) as this provider
-	don't accept 127.0.0.1 / localhost
-'''
-
+@auth_ns.route("/token/refresh")
+class Refresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        id = get_jwt_identity()
+        access_token = create_access_token(identity=id)
+        return jsonify({"access_token":access_token})
 
 
 # @auth_ns.route('/')

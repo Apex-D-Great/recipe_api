@@ -10,7 +10,7 @@ authorizations = {
         "name": "Authorization"
     }
 }
-recipe_ns = Namespace("recipe", 
+recipe_ns = Namespace("recipe",
                       description="a simple recipe blog endpoint which contains just title and description",
                       authorizations=authorizations)
 
@@ -44,8 +44,8 @@ class RecipeResources(Resource):
         """get all recipes"""
         recipes = Recipe.query.all()
         return recipes
-    
-    
+
+
     @recipe_ns.marshal_with(recipe_model)
     @recipe_ns.expect(recipe_model)
     # @jwt_required()
@@ -57,6 +57,10 @@ class RecipeResources(Resource):
             return jsonify({'error': error_message}), 401
         """this method helps in creating a post"""
         data = request.get_json()
+        get_title = Recipe.query.filter_by(title=data.get("title")).first()
+        if get_title:
+            return jsonify({"message":"title has to be unique"})
         new_recipe = Recipe(title=data.get("title"), description=data.get("description"))
         new_recipe.save()
-        return new_recipe,201
+        get_title = Recipe.query.filter_by(title=data.get("title")).first()
+        return get_title

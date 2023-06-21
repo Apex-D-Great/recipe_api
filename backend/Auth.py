@@ -38,9 +38,10 @@ class Signup(Resource):
     def post(self):
         """sign up method"""
         data = request.get_json()
-        user = User.query.filter_by(email=data.get("email")).first()
-        if user:
-            return jsonify({"message":"email already exist in our database, use a new valid email"})
+        usermail = User.query.filter_by(email=data.get("email")).first()
+        username = User.query.filter_by(username=data.get("username")).first()
+        if username or usermail:
+            return jsonify({"message":"email/username already exist in our database, use a new valid email/try a new username"})
         password = generate_password_hash(data.get("password"))
         new_user = User(username=data.get("username"), email=data.get("email"), password=password)
         new_user.save()
@@ -94,7 +95,7 @@ class google_login(Resource):
         try:
             GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
             GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
-            
+
             CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
             oauth.register(
                 name='google',
@@ -116,17 +117,14 @@ class google_auth(Resource):
     def get(self):
         token = oauth.google.authorize_access_token()
         user = token['userinfo']
-        if user["email"]:
+        if user["email"] or user["name"] :
             user = User.query.filter_by(email=user["email"]).first()
             access_token = create_access_token(identity=user.id)
             refresh_token = create_refresh_token(identity=user.id)
-            return "you are in"
+            return jsonify({"access_token":access_token, "refresh_token":refresh_token, "message": "you are in"})
         new_user = User(username=user["name"], email=user["email"], password=user["email"])
         new_user.save()
         user = User.query.filter_by(email=user["email"]).first()
         access_token = create_access_token(identity=user.id)
         refresh_token = create_refresh_token(identity=user.id)
-        # return jsonify({"access_token":access_token, "refresh_token":refresh_token})
-        return "you are in"
-        
-
+        return jsonify({"access_token":access_token, "refresh_token":refresh_token, "message": "you are in"})

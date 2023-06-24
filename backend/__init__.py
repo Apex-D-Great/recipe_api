@@ -9,6 +9,8 @@ from .routes.Recipe import recipe_ns
 import os
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
+from flask_cors import CORS
+
 
 load_dotenv()
 
@@ -21,6 +23,7 @@ app.secret_key = os.getenv("APP_SECRET_KEY")
 app.config['SERVER_NAME'] = 'localhost:5000'
 
 JWTManager(app)
+CORS(app)
 
 # db_init
 db.init_app(app)
